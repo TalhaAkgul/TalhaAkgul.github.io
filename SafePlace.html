@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafePlace</title>
+    <style>
+        body {
+       padding: 0;
+        margin: 0;
+    }
+    html, body, #map {
+    height: 100%;
+    width: 100vw;
+    }
+        
+      </style>
+      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
+      <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+</head>
+<body>
+    <h1>Welcome to SafePlace</h1>
+    <p> Time for a break</p>
+    <div id="map" style="width: 600px; height: 400px;"></div>
+    <script>
+
+        //initialize map
+       var map = L.map('map').setView([55.64953, 12.58120], 13);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
+        //Mark ITU location
+        let itu = L.marker([55.65953, 12.59120]).addTo(map)
+
+        // Checks if Geolocation is supported
+        if ('geolocation' in navigator) {
+            console.log('Geolocation is supported');
+        } else {
+            alert('Geolocation is not supported in your browser');
+        }
+        // Step 2: Request user's location and updates the map
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                var latitude = position.coords.latitude;
+                var longitude = position.coords.longitude;
+
+                var userLocation = L.marker([latitude, longitude]).addTo(map);
+            },
+            // Error 
+            function(error) {
+                console.error('Error getting user location:', error);
+            }
+        );
+    // Update user's location on map
+    function updateUserLocation(position) {
+    var latitude = position.coords.latitude;
+    var longitude = position.coords.longitude;  
+    var userLocation = L.marker([latitude, longitude]);
+          // Update marker position
+    if (!userLocation) {
+        userLocation = L.marker([latitude, longitude]).addTo(map);
+    } else {
+        userLocation.setLatLng([latitude, longitude]);
+    }
+
+    // Center map on user's location
+    map.setView([latitude, longitude]);
+    }
+
+// Start watching user's location
+var watchID = navigator.geolocation.watchPosition(
+    updateUserLocation, 
+    //error
+    function(error) {
+        console.error('Error getting user location:', error);
+        
+    }
+);
+
+var latLngBounds = L.latLngBounds([[55.64953, 12.58120],[55.66953, 12.60120]]);
+      L.rectangle(latLngBounds).addTo(map);
+    </script>
+</body>
+</html>
